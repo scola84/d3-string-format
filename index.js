@@ -14,7 +14,7 @@ function stringFormatLocale(definition) {
     format(prefix = null) {
       return (code, ...args) => {
         code = prefix ? prefix + '.' + code : code;
-        return sprintf.vsprintf(get(definition, code) || code, args);
+        return sprintf.vsprintf(get(definition, code), args);
       };
     }
   };
