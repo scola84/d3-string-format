@@ -13,8 +13,15 @@ function stringFormatLocale(definition) {
   return {
     format(prefix = null) {
       return (code, ...args) => {
-        code = prefix ? prefix + '.' + code : code;
-        return sprintf.vsprintf(get(definition, code), args);
+        let string = prefix ? prefix + '.' + code : code;
+
+        string = get(definition, string);
+        string = args[0] &&
+          typeof args[0].count !== 'undefined' &&
+          typeof string !== 'undefined' ?
+          string[args[0].count] || string.d : string;
+
+        return sprintf.vsprintf(string, args);
       };
     }
   };
