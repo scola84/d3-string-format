@@ -17,12 +17,8 @@ function stringFormatLocale(definition) {
           prefix ? prefix + '.' + code : code);
 
         if (Array.isArray(string)) {
-          if (typeof args[0] === 'undefined') {
-            string = null;
-          } else {
-            args = String(args[0]).split(' ');
-            string = string[args.length - 1];
-          }
+          args = String(args[0]).split(' ');
+          string = string[args.length - 1];
         } else if (typeof string === 'object') {
           string = args[0] && string[args[0].count] || string.d;
         }
