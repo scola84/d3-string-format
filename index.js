@@ -20,7 +20,8 @@ function stringFormatLocale(definition) {
           args = String(args[0]).split(' ');
           string = string[args.length - 1];
         } else if (typeof string === 'object') {
-          string = args[0] && string[args[0].count] || string.d;
+          string = args[0] && string[args[0]] ||
+            string[args[0].count] || string.d;
         }
 
         return sprintf.vsprintf(string, args);
