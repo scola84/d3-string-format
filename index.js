@@ -1,4 +1,5 @@
 import { DateTime } from 'luxon';
+import bytes from 'bytes';
 import marked from 'marked';
 import get from 'lodash-es/get';
 import sprintf from 'sprintf-js';
@@ -28,7 +29,13 @@ function stringFormatLocale(definition, name) {
           value = value(...args);
         }
 
-        const md = value && value.match(/(%md)/);
+        const byte = value && value.match(/%by/g);
+
+        if (byte) {
+          value = formatBytes(args, value, byte);
+        }
+
+        const md = value && value.match(/%md/g);
 
         if (md) {
           value = formatMarkdown(args, value, md);
@@ -48,11 +55,23 @@ function stringFormatLocale(definition, name) {
   };
 }
 
+function formatBytes(args, value, byte) {
+  for (let i = 0; i < byte.length; i += 1) {
+    value = value.replace(byte[i], bytes(args[i]));
+  }
+
+  return value;
+}
+
 function formatMarkdown(args, value, md) {
-  return value.replace(md[1], marked(args[0], {
-    breaks: true,
-    sanitize: true
-  }));
+  for (let i = 0; i < md.length; i += 1) {
+    value = value.replace(md[i], marked(args[0], {
+      breaks: true,
+      sanitize: true
+    }));
+  }
+
+  return value;
 }
 
 function formatDate(args, value, date, name) {
