@@ -79,6 +79,7 @@ function formatDate(args, value, date, name) {
   let offset = null;
   let sign = null;
   let time = null;
+  let zone = null;
 
   for (let i = 0; i < date.length; i += 1) {
     format = date[i].slice(2, -3);
@@ -93,10 +94,10 @@ function formatDate(args, value, date, name) {
 
     sign = sign || '+';
     time = Number(time);
-    offset = offset || 0;
+    zone = offset ? 'UTC' + sign + (offset / 3600) : null;
 
     value = value.replace(date[i], DateTime
-      .fromMillis(time, { zone: 'UTC' + sign + (offset / 3600) })
+      .fromMillis(time, { zone })
       .setLocale(name.replace('_', '-'))
       .toFormat(format));
   }
