@@ -29,19 +29,22 @@ function stringFormatLocale(definition, name) {
           value = value(...args);
         }
 
-        const byte = value && value.match(/%by/g);
+        const byte = typeof value === 'string' &&
+          value.match(/%by/g);
 
         if (byte) {
           value = formatBytes(args, value, byte);
         }
 
-        const md = value && value.match(/%md/g);
+        const md = typeof value === 'string' &&
+          value.match(/%md/g);
 
         if (md) {
           value = formatMarkdown(args, value, md);
         }
 
-        const date = value && value.match(/%\(([a-z ]*)+\)ds/gi);
+        const date = typeof value === 'string' &&
+          value.match(/%\(([a-z ]*)+\)ds/gi);
 
         if (date) {
           value = formatDate(args, value, date, name);
