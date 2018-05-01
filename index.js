@@ -1,7 +1,8 @@
-import { DateTime } from 'luxon';
 import bytes from 'bytes';
-import marked from 'marked';
+import { format as numberFormat } from 'd3';
+import { DateTime } from 'luxon';
 import get from 'lodash-es/get';
+import marked from 'marked';
 import sprintf from 'sprintf-js';
 
 let locale = null;
@@ -43,6 +44,13 @@ function stringFormatLocale(definition, name) {
           value = formatMarkdown(args, value, md);
         }
 
+        const number = typeof value === 'string' &&
+          value.match(/%\((.+)\)ns/gi);
+
+        if (number) {
+          value = formatNumber(args, value, number);
+        }
+
         const date = typeof value === 'string' &&
           value.match(/%\(([a-z ]*)+\)ds/gi);
 
@@ -66,6 +74,26 @@ function formatBytes(args, value, byte) {
   return value;
 }
 
+function formatDate(args, value, date, name) {
+  const zone = (args.length - date.length) === 1 ?
+    args[args.length - 1] : null;
+
+  for (let i = 0; i < date.length; i += 1) {
+    if (!args[i]) {
+      value = value.replace(date[i], '');
+      continue;
+    }
+
+    value = value.replace(date[i], DateTime
+      .fromMillis(Number(args[i]))
+      .setZone(zone)
+      .setLocale(name.replace('_', '-'))
+      .toFormat(date[i].slice(2, -3)));
+  }
+
+  return value;
+}
+
 function formatMarkdown(args, value, md) {
   for (let i = 0; i < md.length; i += 1) {
     value = value.replace(md[i], marked(args[0], {
@@ -77,32 +105,10 @@ function formatMarkdown(args, value, md) {
   return value;
 }
 
-function formatDate(args, value, date, name) {
-  let format = null;
-  let offset = null;
-  let sign = null;
-  let time = null;
-  let zone = null;
-
-  for (let i = 0; i < date.length; i += 1) {
-    format = date[i].slice(2, -3);
-
-    if (!args[i]) {
-      value = value.replace(date[i], '');
-      continue;
-    }
-
-    [, time, sign, offset] = String(args[i])
-      .match(/(\d*)([-+]?)(\d*)/);
-
-    sign = sign || '+';
-    time = Number(time);
-    zone = offset ? 'UTC' + sign + (offset / 3600) : null;
-
-    value = value.replace(date[i], DateTime
-      .fromMillis(time, { zone })
-      .setLocale(name.replace('_', '-'))
-      .toFormat(format));
+function formatNumber(args, value, number) {
+  for (let i = 0; i < number.length; i += 1) {
+    value = value.replace(number[i],
+      numberFormat(number[i].slice(2, -3))(args[i]));
   }
 
   return value;
