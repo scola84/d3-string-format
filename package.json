@@ -9,8 +9,8 @@
   "jsnext:main": "./index.js",
   "dependencies": {
     "bytes": "^3.0.0",
-    "lodash-es": "^4.17.7",
-    "luxon": "^1.0.0",
+    "lodash-es": "^4.17.10",
+    "luxon": "^1.2.0",
     "marked": "^0.3.19",
     "sprintf-js": "^1.1.1"
   }
