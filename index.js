@@ -8,12 +8,12 @@ import sprintf from 'sprintf-js';
 let locale = null;
 let stringFormat = null;
 
-function stringFormatDefaultLocale(definition, name = 'en_GB') {
-  locale = stringFormatLocale(definition, name);
+function stringFormatDefaultLocale(definition) {
+  locale = stringFormatLocale(definition);
   stringFormat = locale.format;
 }
 
-function stringFormatLocale(definition, name) {
+function stringFormatLocale(definition) {
   return {
     format(prefix = null) {
       return (code, ...args) => {
@@ -55,7 +55,7 @@ function stringFormatLocale(definition, name) {
           value.match(/%\(([a-z ]*)+\)ds/gi);
 
         if (date) {
-          value = formatDate(args, value, date, name);
+          value = formatDate(args, value, date, definition.name);
         }
 
         return typeof value === 'string' ?
