@@ -2,30 +2,42 @@ import bytes from 'bytes';
 import { format as numberFormat } from 'd3';
 import { DateTime } from 'luxon';
 import get from 'lodash-es/get';
+import findKey from 'lodash-es/findKey';
 import marked from 'marked';
 import sprintf from 'sprintf-js';
 
 let locale = null;
 let stringFormat = null;
+let stringParse = null;
 
 function stringFormatDefaultLocale(definition) {
   locale = stringFormatLocale(definition);
   stringFormat = locale.format;
+  stringParse = locale.parse;
 }
 
 function stringFormatLocale(definition) {
   return {
+    parse(prefix = null) {
+      return (base, value = '') => {
+        const object = get(definition, prefix ? prefix + '.' + base : base);
+        return findKey(object, (v) => {
+          return String(v).toLowerCase() === String(value).toLowerCase();
+        });
+      };
+    },
     format(prefix = null) {
       return (code, ...args) => {
-        let value = get(definition,
-          prefix ? prefix + '.' + code : code);
+        let value = get(definition, prefix ? prefix + '.' + code : code);
 
         if (Array.isArray(value)) {
           args = String(args[0]).split(' ');
           value = value[args.length - 1];
         } else if (typeof value === 'object') {
-          value = args[0] && (value[args[0]] ||
-            value[args[0].count] || value.v) || value.d;
+          value = args[0] === 'object' ? value :
+            args[0] &&
+            (value[args[0]] || value[args[0].count] || value.v) ||
+            value.d;
         } else if (typeof value === 'function') {
           value = value(...args);
         }
@@ -119,5 +131,6 @@ stringFormatDefaultLocale({});
 export {
   stringFormat,
   stringFormatDefaultLocale,
-  stringFormatLocale
+  stringFormatLocale,
+  stringParse
 };
