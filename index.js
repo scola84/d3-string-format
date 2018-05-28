@@ -39,7 +39,7 @@ function stringFormatLocale(definition) {
             (value[args[0]] || value[args[0].count] || value.v) ||
             value.d;
         } else if (typeof value === 'function') {
-          value = value(...args);
+          value = value(...args, args);
         }
 
         const byte = typeof value === 'string' &&
@@ -70,9 +70,15 @@ function stringFormatLocale(definition) {
           value = formatDate(args, value, date, definition.name);
         }
 
-        return typeof value === 'string' ?
-          sprintf.vsprintf(value, args) :
-          value;
+        try {
+          value = typeof value === 'string' ?
+            sprintf.vsprintf(value, args) :
+            value;
+        } catch (error) {
+          value = 'error';
+        }
+
+        return value;
       };
     }
   };
@@ -88,7 +94,7 @@ function formatBytes(args, value, byte) {
 
 function formatDate(args, value, date, name) {
   const zone = (args.length - date.length) === 1 ?
-    args[args.length - 1] : null;
+    args[args.length - 1] : 'local';
 
   for (let i = 0; i < date.length; i += 1) {
     if (!args[i]) {
