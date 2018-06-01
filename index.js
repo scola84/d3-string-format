@@ -75,10 +75,10 @@ function stringFormatLocale(definition) {
             sprintf.vsprintf(value, args) :
             value;
         } catch (error) {
-          value = 'error';
+          value = error.message;
         }
 
-        return value;
+        return md ? { md: value } : value;
       };
     }
   };
