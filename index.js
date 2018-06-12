@@ -120,7 +120,7 @@ function formatMarkdown(args, value, md) {
     }));
   }
 
-  return value;
+  return value.replace(/%/g, '%%');
 }
 
 function formatNumber(args, value, number) {
