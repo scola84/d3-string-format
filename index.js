@@ -7,25 +7,19 @@ import marked from 'marked';
 import sprintf from 'sprintf-js';
 
 let locale = null;
+let getString = null;
 let stringFormat = null;
 let stringParse = null;
 
 function stringFormatDefaultLocale(definition) {
   locale = stringFormatLocale(definition);
+  getString = locale.get;
   stringFormat = locale.format;
   stringParse = locale.parse;
 }
 
 function stringFormatLocale(definition) {
   return {
-    parse(prefix = null) {
-      return (base, value = '') => {
-        const object = get(definition, prefix ? prefix + '.' + base : base);
-        return findKey(object, (v) => {
-          return String(v).toLowerCase() === String(value).toLowerCase();
-        });
-      };
-    },
     format(prefix = null) {
       return (code, ...args) => {
         let value = get(definition, prefix ? prefix + '.' + code : code);
@@ -79,6 +73,19 @@ function stringFormatLocale(definition) {
         }
 
         return md ? { md: value } : value;
+      };
+    },
+    get(prefix = null) {
+      return (code) => {
+        return get(definition, prefix ? prefix + '.' + code : code);
+      };
+    },
+    parse(prefix = null) {
+      return (base, value = '') => {
+        const object = get(definition, prefix ? prefix + '.' + base : base);
+        return findKey(object, (v) => {
+          return String(v).toLowerCase() === String(value).toLowerCase();
+        });
       };
     }
   };
@@ -135,6 +142,7 @@ function formatNumber(args, value, number) {
 stringFormatDefaultLocale({});
 
 export {
+  getString,
   stringFormat,
   stringFormatDefaultLocale,
   stringFormatLocale,
