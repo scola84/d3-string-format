@@ -43,6 +43,13 @@ export default function format(definition) {
         value = formatNumber(args, value, number);
       }
 
+      const si = typeof value === 'string' &&
+        value.match(/%\((.+)\)si/gi);
+
+      if (si) {
+        value = formatSI(args, value, si);
+      }
+
       const date = typeof value === 'string' &&
         value.match(/%\(([a-z ]*)+\)ds/gi);
 
@@ -106,6 +113,30 @@ function formatNumber(args, value, number) {
   for (let i = 0; i < number.length; i += 1) {
     value = value.replace(number[i],
       numberFormat(number[i].slice(2, -3))(args[i]));
+  }
+
+  return value;
+}
+
+function formatSI(args, value, si) {
+  let unit = null;
+  let mode = null;
+  let number = null;
+  let prefix = null;
+  let replace = null;
+
+  for (let i = 0; i < si.length; i += 1) {
+    [unit, mode = 3] = si[i].slice(2, -3).split('|');
+    mode = Number(mode);
+    number = numberFormat('.3s')(args[i]);
+    [, number, prefix = ''] = number.match(/([^a-z]+)([a-z]*)/i);
+
+    replace = '';
+    replace += (mode & 1) ? number : '';
+    replace += ' ';
+    replace += (mode & 2) ? prefix + unit : '';
+
+    value = value.replace(si[i], replace);
   }
 
   return value;
