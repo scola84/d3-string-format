@@ -1,6 +1,7 @@
 import format from './src/format';
 import get from './src/get';
 import parse from './src/parse';
+import formatters from './src/format/';
 
 let locale = null;
 let getString = null;
@@ -25,6 +26,7 @@ function stringFormatLocale(definition) {
 stringFormatDefaultLocale({});
 
 export {
+  formatters,
   getString,
   stringFormat,
   stringFormatDefaultLocale,

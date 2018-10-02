@@ -1,9 +1,6 @@
-import bytes from 'bytes';
-import { format as numberFormat } from 'd3';
-import { DateTime } from 'luxon';
 import get from 'lodash-es/get';
-import marked from 'marked';
 import sprintf from 'sprintf-js';
+import formatters from './format/';
 
 export default function format(definition) {
   return (prefix = null) => {
@@ -22,39 +19,18 @@ export default function format(definition) {
         value = value(...args, args);
       }
 
-      const byte = typeof value === 'string' &&
-        value.match(/%by/g);
+      const keys = Object.keys(formatters);
 
-      if (byte) {
-        value = formatBytes(args, value, byte);
-      }
+      let formatter = null;
+      let match = null;
 
-      const md = typeof value === 'string' &&
-        value.match(/%md/g);
+      for (let i = 0; i < keys.length; i += 1) {
+        formatter = formatters[keys[i]];
+        match = formatter.match(value);
 
-      if (md) {
-        value = formatMarkdown(args, value, md);
-      }
-
-      const number = typeof value === 'string' &&
-        value.match(/%\((.+)\)ns/gi);
-
-      if (number) {
-        value = formatNumber(args, value, number);
-      }
-
-      const si = typeof value === 'string' &&
-        value.match(/%\((.+)\)si/gi);
-
-      if (si) {
-        value = formatSI(args, value, si);
-      }
-
-      const date = typeof value === 'string' &&
-        value.match(/%\(([a-z ]*)+\)ds/gi);
-
-      if (date) {
-        value = formatDate(args, value, date, definition.name);
+        if (match) {
+          value = formatter.format(args, value, match);
+        }
       }
 
       try {
@@ -65,79 +41,7 @@ export default function format(definition) {
         value = error.message;
       }
 
-      return md ? { md: value } : value;
+      return value;
     };
   };
-}
-
-function formatBytes(args, value, byte) {
-  for (let i = 0; i < byte.length; i += 1) {
-    value = value.replace(byte[i], bytes(args[i]));
-  }
-
-  return value;
-}
-
-function formatDate(args, value, date, name) {
-  const zone = (args.length - date.length) === 1 ?
-    args[args.length - 1] : 'local';
-
-  for (let i = 0; i < date.length; i += 1) {
-    if (!args[i]) {
-      value = value.replace(date[i], '');
-      continue;
-    }
-
-    value = value.replace(date[i], DateTime
-      .fromMillis(Number(args[i]))
-      .setZone(zone)
-      .setLocale(name.replace('_', '-'))
-      .toFormat(date[i].slice(2, -3)));
-  }
-
-  return value;
-}
-
-function formatMarkdown(args, value, md) {
-  for (let i = 0; i < md.length; i += 1) {
-    value = value.replace(md[i], marked(args[0], {
-      breaks: true,
-      sanitize: true
-    }));
-  }
-
-  return value.replace(/%/g, '%%');
-}
-
-function formatNumber(args, value, number) {
-  for (let i = 0; i < number.length; i += 1) {
-    value = value.replace(number[i],
-      numberFormat(number[i].slice(2, -3))(args[i]));
-  }
-
-  return value;
-}
-
-function formatSI(args, value, si) {
-  let unit = null;
-  let mode = null;
-  let number = null;
-  let prefix = null;
-  let replace = null;
-
-  for (let i = 0; i < si.length; i += 1) {
-    [unit, mode = 3] = si[i].slice(2, -3).split('|');
-    mode = Number(mode);
-    number = numberFormat('.3s')(args[i]);
-    [, number, prefix = ''] = number.match(/([^a-z]+)([a-z]*)/i);
-
-    replace = '';
-    replace += (mode & 1) ? number : '';
-    replace += ' ';
-    replace += (mode & 2) ? prefix + unit : '';
-
-    value = value.replace(si[i], replace);
-  }
-
-  return value;
 }
