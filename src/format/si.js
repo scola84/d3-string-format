@@ -5,7 +5,15 @@ import {
 
 export default {
   format,
-  match
+  match,
+  mode: {
+    NUMBER: 2 ** 0,
+    UNIT: 2 ** 1
+  },
+  specifier: {
+    FLOAT: '.3s',
+    INTEGER: '.0s'
+  }
 };
 
 function format(args, value, options) {

@@ -1,6 +1,6 @@
 import get from 'lodash-es/get';
 import sprintf from 'sprintf-js';
-import formatters from './format/';
+import formatter from './format/';
 
 export default function format(definition) {
   return (prefix = null) => {
@@ -19,17 +19,17 @@ export default function format(definition) {
         value = value(...args, args);
       }
 
-      const keys = Object.keys(formatters);
+      const keys = Object.keys(formatter);
 
-      let formatter = null;
+      let item = null;
       let match = null;
 
       for (let i = 0; i < keys.length; i += 1) {
-        formatter = formatters[keys[i]];
-        match = formatter.match(value);
+        item = formatter[keys[i]];
+        match = item.match(value);
 
         if (match) {
-          value = formatter.format(args, value, match);
+          value = item.format(args, value, match);
         }
       }
 
