@@ -45,7 +45,7 @@ function format(args, value, options) {
     replace += ' ';
     replace += (mode & 2) ? prefix + unit : '';
 
-    value = value.replace(options[i], replace);
+    value = value.replace(options[i], replace.trim());
   }
 
   return value;
