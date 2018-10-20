@@ -27,5 +27,5 @@ function format(args, value, options) {
 
 function match(value) {
   return typeof value === 'string' &&
-    value.match(/%\(([a-z ]*)+\)ds/gi);
+    value.match(/%\((.+)\)ds/gi);
 }
