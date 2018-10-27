@@ -29,7 +29,7 @@ export default function format(definition) {
         match = item.match(value);
 
         if (match) {
-          value = item.format(args, value, match);
+          value = item.format(args, value, match, definition.name);
         }
       }
 

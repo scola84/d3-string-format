@@ -5,7 +5,7 @@ export default {
   match
 };
 
-function format(args, value, options) {
+function format(args, value, options, name) {
   const zone = (args.length - options.length) === 1 ?
     args[args.length - 1] : 'local';
 
