@@ -12,7 +12,7 @@ export default function format(definition) {
         value = value[args.length - 1];
       } else if (typeof value === 'object') {
         value = args[0] === 'object' ? value :
-          args[0] &&
+          typeof args[0] !== 'undefined' &&
           (get(value, args[0]) || value[args[0].count] || value.v) ||
           value.d;
       } else if (typeof value === 'function') {
